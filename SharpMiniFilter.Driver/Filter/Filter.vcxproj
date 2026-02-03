@@ -1,0 +1,177 @@
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="1filter.ddf">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <None Include="1filter.inf">
+      <Architecture>amd64</Architecture>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <SpecifyArchitecture Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</SpecifyArchitecture>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <SpecifyArchitecture Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</SpecifyArchitecture>
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(OutDir)$(TargetName).sys" />
+    <FilesToPackage Include="1filter.inf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include/Auth.h" />
+    <ClInclude Include="include/Common.h" />
+    <ClInclude Include="include/Error.h" />
+    <ClInclude Include="include/Filter.h" />
+    <ClInclude Include="include/Protector.h" />
+    <ClInclude Include="include/ProtectorPort.h" />
+    <ClInclude Include="include/Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src/Auth.c" />
+    <ClCompile Include="src/Filter.c" />
+    <ClCompile Include="src/main.c" />
+    <ClCompile Include="src/Protector.c" />
+    <ClCompile Include="src/ProtectorPort.c" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{E12D19F3-B5AF-4EDB-8BAF-B29C1EB67FB9}</ProjectGuid>
+    <KMDF_VERSION_MAJOR>1</KMDF_VERSION_MAJOR>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <ProjectSubType>Driver</ProjectSubType>
+    <DriverType>KMDF</DriverType>
+    <TargetPlatform>Desktop</TargetPlatform>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <TargetName>1filter</TargetName>
+    <TargetExtension>.sys</TargetExtension>
+    <TargetExt>.sys</TargetExt>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <SignMode>TestSign</SignMode>
+    <EmbeddedSign>true</EmbeddedSign>
+    <InfVerif>
+      <RunInfVerifTest>false</RunInfVerifTest>
+    </InfVerif>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <TargetName>1filter</TargetName>
+    <TargetExtension>.sys</TargetExtension>
+    <TargetExt>.sys</TargetExt>
+    <SupportsPackaging>false</SupportsPackaging>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DDK_INC_PATH)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DDK_INC_PATH);C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\km</AdditionalIncludeDirectories>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <PreprocessorDefinitions>_AMD64_</PreprocessorDefinitions>
+    </ClCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DDK_INC_PATH)</AdditionalIncludeDirectories>
+    </Midl>
+    <Link>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SubSystem>Native</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies);ksecdd.lib;fltMgr.lib;$(DDK_LIB_PATH)\treeclxstub.lib</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvcrt.lib;libucrt.lib;libvcruntime.lib;ucrt.lib;vcruntime.lib</IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/INTEGRITYCHECK %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <DriverSign>
+      <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
+    </DriverSign>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DDK_INC_PATH)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DDK_INC_PATH);C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\km</AdditionalIncludeDirectories>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <PreprocessorDefinitions>_AMD64_</PreprocessorDefinitions>
+    </ClCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DDK_INC_PATH)</AdditionalIncludeDirectories>
+    </Midl>
+    <Link>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <SubSystem>Native</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies);ksecdd.lib;fltMgr.lib;$(DDK_LIB_PATH)\treeclxstub.lib</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvcrt.lib;libucrt.lib;libvcruntime.lib;ucrt.lib;vcruntime.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <DriverSign>
+      <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
+    </DriverSign>
+  </ItemDefinitionGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
+    <EnableInf2cat>true</EnableInf2cat>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)\Driver\</OutDir>
+    <TimeStampServer>http://timestamp.globalsign.com/scripts/timstamp.dll</TimeStampServer>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+    <PropertyGroup>
+        <KeyProvider>YOUR_KEY_PROVIDER_NAME</KeyProvider>
+    </PropertyGroup>
+  <Target Name="Sign" AfterTargets="build" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Exec Command="signtool sign /v /n &quot;$(KeyProvider)&quot; /tr http://timestamp.globalsign.com/tsa/r6advanced1 /fd sha256 /td sha256 &quot;$(SolutionDir)Driver\Filter\1filter.cat&quot;" />
+    <Exec Command="signtool sign /v /n &quot;$(KeyProvider)&quot; /tr http://timestamp.globalsign.com/tsa/r6advanced1 /fd sha256 /td sha256 &quot;$(SolutionDir)Driver\Filter\1filter.sys&quot;" />
+    <Exec Command="if not exist &quot;$(SolutionDir)Driver\Final&quot; mkdir &quot;$(SolutionDir)Driver\Final&quot;" />
+    <Exec Command="del /F &quot;$(SolutionDir)Driver\1filter.pdb&quot;" />
+    <Exec Command="del /F &quot;$(SolutionDir)Driver\1filter.sys&quot;" />
+    <Exec Command="copy &quot;$(SolutionDir)Driver\Filter\1filter.cat&quot; &quot;$(SolutionDir)Driver\1filter.cat&quot;" />
+    <Exec Command="copy &quot;$(SolutionDir)Driver\Filter\1filter.inf&quot; &quot;$(SolutionDir)Driver\1filter.inf&quot;" />
+    <Exec Command="copy &quot;$(SolutionDir)Driver\Filter\1filter.sys&quot; &quot;$(SolutionDir)Driver\1filter.sys&quot;" />
+    <Exec Command="cd &quot;$(SolutionDir)Driver\&quot; %26%26 MakeCab /f 1filter.ddf" />
+    <Exec Command="copy &quot;$(SolutionDir)Driver\disk1\1filter.cab&quot; &quot;$(SolutionDir)Driver\Final\1filter.cab&quot;" />
+    <Exec Command="signtool sign /v /n &quot;$(KeyProvider)&quot; /tr http://timestamp.globalsign.com/tsa/r6advanced1 /fd sha256 /td sha256 &quot;$(SolutionDir)Driver\Final\1filter.cab&quot;" />
+  </Target>
+</Project>

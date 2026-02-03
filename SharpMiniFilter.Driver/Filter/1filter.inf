@@ -1,0 +1,70 @@
+[Version]
+Signature         = "$Windows NT$"
+Class             = "ActivityMonitor"
+ClassGuid         = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}
+Provider          = %Provider%
+DriverPackageType = FileSystemMinifilter
+DriverVer         = 01/01/2026,1.0.0.0
+CatalogFile       = 1filter.cat
+PnpLockdown       = 1
+
+[DefaultInstall.NTamd64]
+OptionDesc  = %ServiceDesc%
+CopyFiles   = MiniFilter.DriverFiles
+
+[DefaultInstall.NTamd64.Services]
+AddService  = 1Minifilter, 0x2, MiniFilter.Service, MiniFilter.EventLog 
+
+[DefaultUninstall.NTamd64]
+DelFiles    = MiniFilter.DriverFiles
+
+[DefaultUninstall.NTamd64.Services]
+DelService  = 1Minifilter, 0x200
+
+[DestinationDirs]
+DefaultDestDir         = 12
+MiniFilter.DriverFiles = 12   ; %SystemRoot%\System32\drivers
+
+[MiniFilter.DriverFiles]
+1filter.sys
+
+[MiniFilter.Service]
+DisplayName    = %ServiceDesc%
+Description    = %ServiceDesc%
+ServiceBinary  = %12%\1filter.sys
+Dependencies   = FltMgr
+ServiceType    = 2                         
+StartType      = 2                        
+ErrorControl   = 1
+LoadOrderGroup = "FSFilter Activity Monitor"
+AddReg         = MiniFilter.Instances
+
+[MiniFilter.Instances]
+HKR,"Parameters","DebugFlags",0x00010001,0x0
+HKR,"Parameters","SupportedFeatures",0x00010001,0x3
+HKR,"Parameters","OperationMode",0x00010001,0x1
+HKR,"Parameters","ReportRate",0x00010001,0x2710
+HKR,"Parameters","WatchPaths",0x00000000,""
+
+HKR, "Parameters\Instances", "DefaultInstance", 0x00000000, "1Minifilter"
+HKR, "Parameters\Instances\1Minifilter", "Altitude", 0x00000000, "370054"  
+HKR, "Parameters\Instances\1Minifilter", "Flags",    0x00010001, 0
+
+
+[MiniFilter.EventLog]
+AddReg = MiniFilter.AddEventLogReg
+
+[MiniFilter.AddEventLogReg]
+HKR, "EventMessageFile", 0x00020000, "%11%\IoLogMsg.dll;%12%\1filter.sys"
+HKR, "TypesSupported",   0x00010001, 7
+
+[SourceDisksFiles]
+1filter.sys = 1
+
+[SourceDisksNames]
+1 = %DiskName%,,,.
+
+[Strings]
+Provider    = "1"
+ServiceDesc = "1 Minifilter"
+DiskName    = "1 Minifilter Install Disk"

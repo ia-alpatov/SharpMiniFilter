@@ -1,0 +1,112 @@
+#pragma once
+#include <fltKernel.h>
+
+#define PROCESS_TERMINATE (0x0001)
+#define PROCESS_CREATE_THREAD (0x0002)
+#define PROCESS_SET_SESSIONID (0x0004)
+#define PROCESS_VM_OPERATION (0x0008)
+#define PROCESS_VM_READ (0x0010)
+#define PROCESS_VM_WRITE (0x0020)
+#define PROCESS_DUP_HANDLE (0x0040)
+#define PROCESS_CREATE_PROCESS (0x0080)
+#define PROCESS_SET_QUOTA (0x0100)
+#define PROCESS_SET_INFORMATION (0x0200)
+#define PROCESS_QUERY_INFORMATION (0x0400)
+#define PROCESS_SUSPEND_RESUME (0x0800)
+#define PROCESS_QUERY_LIMITED_INFORMATION (0x1000)
+#define PROCESS_SET_LIMITED_INFORMATION (0x2000)
+
+#define THREAD_ALERT (0x0004)
+#define THREAD_TERMINATE (0x0001)
+#define THREAD_SUSPEND_RESUME (0x0002)
+#define THREAD_GET_CONTEXT (0x0008)
+#define THREAD_SET_CONTEXT (0x0010)
+#define THREAD_QUERY_INFORMATION (0x0040)
+#define THREAD_SET_INFORMATION (0x0020)
+#define THREAD_SET_THREAD_TOKEN (0x0080)
+#define THREAD_IMPERSONATE (0x0100)
+#define THREAD_DIRECT_IMPERSONATION (0x0200)
+#define THREAD_SET_LIMITED_INFORMATION (0x0400)
+#define THREAD_QUERY_LIMITED_INFORMATION (0x0800)
+#define THREAD_RESUME (0x1000)
+
+#define PROCESS_GENERIC_READ (READ_CONTROL | PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE)
+#define PROCESS_GENERIC_WRITE (READ_CONTROL | PROCESS_CREATE_PROCESS | PROCESS_CREATE_THREAD | PROCESS_SET_INFORMATION | PROCESS_SET_QUOTA | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | SYNCHRONIZE)
+#define PROCESS_GENERIC_EXECUTE (READ_CONTROL | PROCESS_TERMINATE | PROCESS_SUSPEND_RESUME | SYNCHRONIZE)
+#define PROCESS_GENERIC_ALL (PROCESS_ALL_ACCESS)
+
+#define THREAD_GENERIC_READ (READ_CONTROL | THREAD_GET_CONTEXT | THREAD_QUERY_INFORMATION | THREAD_QUERY_LIMITED_INFORMATION | SYNCHRONIZE)
+#define THREAD_GENERIC_WRITE (READ_CONTROL | THREAD_SET_CONTEXT | THREAD_SET_INFORMATION | THREAD_TERMINATE | THREAD_SUSPEND_RESUME | THREAD_SET_THREAD_TOKEN | THREAD_IMPERSONATE | THREAD_DIRECT_IMPERSONATION | THREAD_SET_LIMITED_INFORMATION | SYNCHRONIZE)
+#define THREAD_GENERIC_EXECUTE (READ_CONTROL | THREAD_SUSPEND_RESUME | SYNCHRONIZE)
+#define THREAD_GENERIC_ALL (THREAD_ALL_ACCESS)
+
+
+
+#define OB_RULE_TAG 'rNbO'
+
+#define MAX_PROTECTION_DEPTH 3
+
+static BOOLEAN ProtectorIsNameListed(_In_ PCUNICODE_STRING BaseNameUc, _In_ BOOLEAN ProtectList);
+static VOID ProtectorQueryPolicy(_In_ PEPROCESS Eproc, _Out_ PBOOLEAN OutProtect, _Out_ PBOOLEAN OutReject);
+static BOOLEAN ProtectorIsPIDListed(_In_ HANDLE ProcessId, _In_ BOOLEAN ProtectList);
+static VOID ProtectorProcessNotifyEx(_Inout_ PEPROCESS Process, _In_ HANDLE ProcessId, _Inout_opt_ PPS_CREATE_NOTIFY_INFO CreateInfo);
+static BOOLEAN ProtectorIsCriticalOwnerByPid(_In_ HANDLE OwnerPid);
+static BOOLEAN ProtectorIsTrustedSystemCaller(void);
+NTSTATUS ProtectorRulesRemoveProtectPid(_In_ ULONG Pid);
+static NTSTATUS ObRulesRemoveLocked(_Inout_ PLIST_ENTRY Head, _In_ PCUNICODE_STRING NameUc);
+BOOLEAN ProtectorRulesContainsLocked(_In_ PLIST_ENTRY Head, _In_ PCUNICODE_STRING Name);
+BOOLEAN ProtectorPortIsReady(void);
+BOOLEAN ProtectorRulesAreReady(void);
+BOOLEAN ProtectorPolicyIsActive(void);
+
+_IRQL_requires_(PASSIVE_LEVEL)
+NTSTATUS ProtectorPortInitialize(_In_ PFLT_FILTER Filter);
+_IRQL_requires_(PASSIVE_LEVEL)
+VOID ProtectorPortFinalize(VOID);
+_IRQL_requires_(PASSIVE_LEVEL)
+NTSTATUS ProtectorPortSendMessage(
+    _In_reads_bytes_opt_(sendLen) PVOID sendBuf,
+    _In_ ULONG sendLen,
+    _Out_writes_bytes_opt_(recvLen) PVOID recvBuf,
+    _In_ ULONG recvLen,
+    _Out_opt_ PULONG written);
+
+extern PFLT_FILTER flt_handle;
+
+FAST_MUTEX protector_ProtectedProcessListLock;
+LIST_ENTRY protector_ProtectedProcessList;
+
+static PFLT_PORT protector_server_port = NULL;
+static PFLT_PORT protector_client_port = NULL;
+
+static volatile CHAR protector_client_authed = 0;
+
+static PVOID protector_RegHandle = NULL;
+static BOOLEAN protector_ProcNotifyRegistered = FALSE;
+
+FAST_MUTEX protector_ProcessParentLock;
+LIST_ENTRY protector_ProcessParentList;
+
+extern FAST_MUTEX protector_RulesLock;
+extern LIST_ENTRY protector_ProtectNames;
+extern LIST_ENTRY protector_RejectNames;
+extern volatile LONG protector_RulesReady;
+
+typedef struct _OB_PORT_CTX
+{
+    BOOLEAN Authed;
+    ULONG ClientPid;
+} OB_PORT_CTX, * POB_PORT_CTX;
+
+typedef struct _OB_NAME_RULE
+{
+    LIST_ENTRY Link;
+    UNICODE_STRING Name;
+} OB_NAME_RULE, * POB_NAME_RULE;
+
+typedef struct _PROTECTED_PROCESS_ENTRY
+{
+    LIST_ENTRY Link;
+    PEPROCESS Process;
+    HANDLE ParentPid;
+} PROTECTED_PROCESS_ENTRY, * PPROTECTED_PROCESS_ENTRY;
